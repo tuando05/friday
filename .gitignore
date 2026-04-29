@@ -1,4 +1,10 @@
-/venv
+# data local
 /data
 
+# environment and python
+/venv
+**/__pycache__
+*.pyc
+
+# environment variable
 .env
