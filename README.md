@@ -14,16 +14,22 @@ F.R.I.D.A.Y is a modular AI assistant built with Python that provides an interac
 ```
 friday/
 ├── main.py              # Entry point for the application
-├── README.md            # Project documentation
 ├── .env                 # Environment variables
 ├── config/              # Configuration files
+│   ├── __init__.py
+│   └── settings.py       # Configuration loading
 ├── core/                # Core modules
 │   ├── __init__.py
 │   ├── brain.py         # AI response generation
-│   ├── config.py        # Configuration management
 │   ├── guard.py         # File vault management
-│   ├── memory.py        # Conversation memory handling
+│   └── memory.py        # Conversation memory handling
+├── prompts/             # Prompt templates
 │   └── sysPromt.txt     # System prompt template
+├── docs/                # Documentation
+│   ├── README.md        # Project documentation
+│   ├── QUICKSTART.md    # Quick setup guide
+│   ├── DEVELOPMENT.md   # Development guide
+│   └── CHANGELOG.md     # Version history
 ├── data/                # Data storage directory
 ├── skill/               # Additional skills/abilities
 └── venv/                # Python virtual environment
@@ -193,7 +199,7 @@ deactivate
 
 ## Configuration
 
-Key configuration variables (in `core/config.py`):
+Key configuration variables (in `config/settings.py`):
 - `AI_NAME` - Name of the AI assistant
 - `BOSS_NAME` - Name of the user
 - `MODEL` - Ollama model to use (default: "mistral")
@@ -210,7 +216,7 @@ Manages conversation history persistence, loading and saving chat records.
 ### guard.py
 Manages file vault operations for secure file handling.
 
-### config.py
+### config/settings.py
 Centralized configuration management for the application.
 
 ## Dependencies

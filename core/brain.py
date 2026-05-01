@@ -1,11 +1,12 @@
 import ollama
 import datetime
-import fileinput
 import os
-from core.config import MODEL, AI_NAME, BOSS_NAME, DATA_DIR
+from config.settings import MODEL, AI_NAME, BOSS_NAME, DATA_DIR
 
 def load_system_prompt():
-    prompt_file = os.path.join(os.path.dirname(__file__), 'sysPromt.txt')
+    prompt_file = os.path.abspath(
+        os.path.join(os.path.dirname(__file__), "..", "prompts", "sysPromt.txt")
+    )
     with open(prompt_file, 'r', encoding='utf-8') as f:
         prompt_content = f.read().strip()
     

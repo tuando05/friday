@@ -1,5 +1,5 @@
 import os
-from core.config import DATA_DIR
+from config.settings import DATA_DIR
 
 def is_safe_path(path):
     full_path = os.path.realpath(os.path.join(DATA_DIR, path))

@@ -1,6 +1,6 @@
 import json
 import os
-from core.config import MEMORY_FILE, MAX_HISTORY
+from config.settings import MEMORY_FILE, MAX_HISTORY
 
 
 def _ensure_memory_dir():

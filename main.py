@@ -1,4 +1,5 @@
-from core import config, memory, brain, guard
+from config import settings as config
+from core import memory, brain, guard
 
 def main():
     print(f"--- {config.AI_NAME} Mark 1 Modular Online ---")

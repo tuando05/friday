@@ -5,23 +5,26 @@
 ```
 friday/
 ├── main.py                 # Main entry point
-├── README.md               # Full documentation
-├── QUICKSTART.md           # Quick setup guide  
-├── DEVELOPMENT.md          # This file
 ├── requirements.txt        # Python dependencies
 ├── .env                    # Configuration (local, not committed)
 ├── .env.example            # Configuration template
 ├── .env.documentation      # Environment variable docs
 ├── .gitignore              # Git ignore rules
+├── config/                 # Configuration files
+│   ├── __init__.py
+│   └── settings.py         # Configuration loading
 ├── core/                   # Core application modules
 │   ├── __init__.py
 │   ├── brain.py            # AI response generation
-│   ├── config.py           # Configuration loading
 │   ├── guard.py            # File management
-│   ├── memory.py           # Conversation memory
+│   └── memory.py           # Conversation memory
+├── prompts/                # Prompt templates
 │   └── sysPromt.txt        # System prompt template
-├── config/                 # Configuration files (for future use)
-│   └── __init__.py
+├── docs/                   # Documentation
+│   ├── README.md           # Full documentation
+│   ├── QUICKSTART.md       # Quick setup guide
+│   ├── DEVELOPMENT.md      # This file
+│   └── CHANGELOG.md        # Version history
 ├── skill/                  # Custom skills/abilities (for future use)
 │   └── __init__.py
 ├── data/                   # Data storage (created at runtime, git-ignored)
@@ -67,7 +70,7 @@ python main.py
 
 ### Core Modules
 
-#### config.py
+#### config/settings.py
 - Loads environment variables from `.env`
 - Provides centralized configuration access
 - Ensures DATA_DIR exists
@@ -148,19 +151,19 @@ NEW_VAR=value
 
 2. Add to `.env` (your local copy)
 
-3. Load in `core/config.py`:
+3. Load in `config/settings.py`:
 ```python
 NEW_VAR = os.getenv("NEW_VAR", "default_value")
 ```
 
 4. Use throughout the app:
 ```python
-from core.config import NEW_VAR
+from config.settings import NEW_VAR
 ```
 
 ### Modifying the System Prompt
 
-Edit `core/sysPromt.txt` to customize the AI's behavior and personality.
+Edit `prompts/sysPromt.txt` to customize the AI's behavior and personality.
 
 ## Testing
 
@@ -196,7 +199,7 @@ def generate_response(user_input, history):
 cat data/memory.json | python -m json.tool
 
 # Check config values
-python -c "from core import config; print(config.__dict__)"
+python -c "from config import settings as config; print(config.__dict__)"
 ```
 
 ## Common Issues and Solutions
