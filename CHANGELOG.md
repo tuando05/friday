@@ -8,6 +8,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- Planned: Web interface
+- Planned: Multi-user support
+- Planned: Advanced memory management
+- Planned: Additional skills and abilities
+
+## [0.1.0] - 2026-05-01
+
+### Added
 - Initial project setup
 - Core modules: brain, config, guard, memory
 - Conversation history persistence
@@ -15,19 +23,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Vietnamese language support
 - System command handling (exit, clear memory, etc)
 - File vault system
-- Documentation (README, QUICKSTART, DEVELOPMENT)
+- Complete documentation (README, QUICKSTART, DEVELOPMENT)
+- Environment variable documentation
+- Comprehensive .gitignore
 
-### Changed
-
-### Deprecated
-
-### Removed
-
-### Fixed
-
-### Security
-
-## [1.0.0] - 2026-04-29
+### Features
+- Local AI Integration with Ollama
+- Persistent memory with JSON storage
+- File management with vault system
+- Modular architecture
+- Command-line interface
 
 ### Added
 - Initial release of F.R.I.D.A.Y

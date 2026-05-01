@@ -229,7 +229,10 @@ Centralized configuration management for the application.
 - Advanced memory management
 
 ## License
-[Add your license here]
+MIT License - See LICENSE file for details
 
 ## Contact
-[Add your contact information here]
+For questions, issues, or suggestions, please open an issue in the repository.
+
+## Changelog
+See [CHANGELOG.md](CHANGELOG.md) for version history and updates.
