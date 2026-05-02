@@ -8,22 +8,22 @@ friday/
 ├── requirements.txt        # Python dependencies
 ├── .env                    # Configuration (local, not committed)
 ├── .env.example            # Configuration template
-├── .env.documentation      # Environment variable docs
 ├── .gitignore              # Git ignore rules
-├── config/                 # Configuration files
+├── config/                 # Configuration module
 │   ├── __init__.py
-│   └── settings.py         # Configuration loading
+│   └── settings.py         # Environment & config loading
 ├── core/                   # Core application modules
 │   ├── __init__.py
-│   ├── brain.py            # AI response generation
-│   ├── guard.py            # File management
-│   └── memory.py           # Conversation memory
+│   ├── brain.py            # AI response generation via Ollama
+│   ├── commands.py         # Command handler
+│   ├── guard.py            # File vault management
+│   ├── memory.py           # Conversation memory (JSON persistence)
+│   └── services.py         # Utility services
 ├── prompts/                # Prompt templates
-│   └── sysPromt.txt        # System prompt template
+│   └── sysPromt.txt        # System prompt for AI
 ├── docs/                   # Documentation
-│   ├── README.md           # Full documentation
-│   ├── QUICKSTART.md       # Quick setup guide
-│   ├── DEVELOPMENT.md      # This file
+│   ├── README.md           # Project overview
+│   ├── DEVELOPMENT.md      # This file - setup & architecture
 │   └── CHANGELOG.md        # Version history
 ├── skill/                  # Custom skills/abilities (for future use)
 │   └── __init__.py
@@ -32,39 +32,53 @@ friday/
 └── venv/                   # Virtual environment (git-ignored)
 ```
 
-## Setting Up Development Environment
+## Getting Started
 
-### 1. Clone and Setup
+### Prerequisites
+- **Python 3.8+** - [Download](https://www.python.org/downloads/)
+- **Ollama** - [Download](https://ollama.ai/)
+- **Git**
+
+### Setup
+
 ```bash
-# Clone the repository
+# Clone and enter directory
 git clone <repository-url>
 cd friday
 
-# Create virtual environment
+# Create and activate virtual environment
 python3 -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
+source venv/bin/activate  # Windows: venv\Scripts\Activate.ps1
 
 # Install dependencies
 pip install -r requirements.txt
 
-# Copy .env example to .env
+# Copy and edit environment config
 cp .env.example .env
+# Edit .env to set AI_NAME, BOSS_NAME, MODEL_NAME, etc.
 ```
 
-### 2. Start Ollama
+### Running
+
 ```bash
-# In another terminal
+# Terminal 1: Start Ollama
 ollama serve
 
-# In another terminal, pull a model if not already installed
+# Terminal 2: Pull model (first time only)
 ollama pull phi3:mini
-```
 
-### 3. Run the Application
-```bash
-# Make sure venv is activated
+# Terminal 3: Run the app
 python main.py
 ```
+
+### Configuration
+
+Edit `.env` file to customize:
+- `AI_NAME` - Assistant name
+- `BOSS_NAME` - Your name  
+- `MODEL_NAME` - Ollama model (phi3:mini, mistral, llama2, etc.)
+- `OLLAMA_HOST` - Ollama server address (default: http://localhost:11434)
+- `MAX_HISTORY` - Number of messages to keep in memory
 
 ## Code Architecture
 
@@ -98,6 +112,51 @@ python main.py
 - `clear_memory()` - Clear all history
 
 #### guard.py
+- Manages file vault system
+- Handles secure file operations
+
+#### commands.py
+- Parses user commands
+- Handles special commands (exit, clear memory, etc.)
+
+#### services.py
+- Utility functions and helpers
+
+## Development Tips
+
+### Adding New Features
+1. Add feature logic to appropriate core module
+2. Update prompts/sysPromt.txt if needed
+3. Add commands to core/commands.py if applicable
+4. Update CHANGELOG.md
+
+### Testing
+```bash
+# Run with debug output
+OLLAMA_HOST=http://localhost:11434 python main.py
+```
+
+### Available Ollama Models
+- `phi3:mini` - Fast, lightweight (default)
+- `mistral` - Good balance
+- `llama2` - Powerful but slower
+- `neural-chat` - Conversation-optimized
+- `orca-mini` - Good reasoning
+
+To use a different model:
+```bash
+ollama pull mistral
+# Then update MODEL_NAME=mistral in .env
+```
+
+## Troubleshooting
+
+| Issue | Solution |
+|-------|----------|
+| Ollama not found | Start with: `ollama serve` |
+| Model not found | Run: `ollama pull <model-name>` |
+| Permission error (Linux) | Ensure `.py` file is executable or use `python3 main.py` |
+| Connection refused | Check OLLAMA_HOST in .env and Ollama is running |
 - Manages file operations in DATA_DIR
 - Ensures files stay within sandbox
 - Lists available files

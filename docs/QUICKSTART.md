@@ -1,78 +1,21 @@
 # Quick Start Guide for F.R.I.D.A.Y
 
-## Quick Setup (Linux/Mac)
+For complete setup and development instructions, see [DEVELOPMENT.md](DEVELOPMENT.md).
+
+## TL;DR
+
 ```bash
-# 1. Create virtual environment
+# Setup
+git clone <url>
+cd friday
 python3 -m venv venv
-source venv/bin/activate
-
-# 2. Install dependencies
+source venv/bin/activate  # Windows: venv\Scripts\Activate.ps1
 pip install -r requirements.txt
 
-# 3. Start Ollama (in another terminal)
-ollama serve
-
-# 4. Pull model (if not already installed)
-ollama pull phi3:mini
-
-# 5. Run the application
-python main.py
+# Run (in separate terminals)
+ollama serve            # Terminal 1
+ollama pull phi3:mini   # Terminal 2 (first time only)
+python main.py          # Terminal 3
 ```
 
-## Quick Setup (Windows)
-```cmd
-# 1. Create virtual environment
-python -m venv venv
-venv\Scripts\activate
-
-# 2. Install dependencies
-pip install -r requirements.txt
-
-# 3. Start Ollama
-# Ollama should be running as a service (or run: ollama serve)
-
-# 4. Pull model (if not already installed)
-ollama pull phi3:mini
-
-# 5. Run the application
-python main.py
-```
-
-## Configuration
-- Copy `.env.example` to `.env`
-- Edit `.env` with your preferences:
-  - Change `AI_NAME` to your preferred assistant name
-  - Change `BOSS_NAME` to your name
-  - Change `MODEL_NAME` to use different Ollama model
-  - Update `OLLAMA_HOST` if not using localhost
-
-## Available Models
-Popular Ollama models you can use:
-- `phi3:mini` - Lightweight, fast (default)
-- `mistral` - Good balance of speed and quality
-- `llama2` - Powerful but slower
-- `neural-chat` - Optimized for conversations
-- `orca-mini` - Good for reasoning
-
-To use a different model:
-```bash
-ollama pull mistral
-# Then update MODEL_NAME=mistral in .env
-```
-
-## Troubleshooting
-
-**"Ollama not found" error:**
-- Start Ollama service: `ollama serve`
-- Check OLLAMA_HOST in .env is correct
-
-**"Model not found" error:**
-- Pull the model: `ollama pull phi3:mini`
-- Check MODEL_NAME in .env matches pulled model
-
-**Permission error on Linux:**
-- Run with Python: `python3 main.py`
-- Check the script has correct permissions
-
-## Need Help?
-See README.md for full documentation
+Edit `.env` to customize AI_NAME, BOSS_NAME, MODEL_NAME, etc.
