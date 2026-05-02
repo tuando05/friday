@@ -1,41 +1,35 @@
-from config import settings as config
-from core import memory, brain, guard
+from core import commands, services
 
 def main():
-    print(f"--- {config.AI_NAME} Mark 1 Modular Online ---")
+    svc = services.build_services()
+    print(f"--- {svc.config.AI_NAME} Mark 1 Modular Online ---")
     
     # Khởi tạo trí nhớ
-    chat_history = memory.load_memory()
+    chat_history = svc.memory.load_memory()
     
     while True:
         try:
-            cmd = input(f"\n{config.BOSS_NAME}: ")
-            
-            # Lệnh đặc biệt
-            if cmd.lower() in ["exit", "nghỉ ngơi đi"]:
-                print(f"{config.AI_NAME}: Hệ thống ngoại tuyến. Chào {config.BOSS_NAME}.")
-                break
-                
-            if "xóa trí nhớ" in cmd.lower():
-                memory.clear_memory()
-                chat_history = []
-                print(f"{config.AI_NAME}: Trí nhớ đã được dọn dẹp.")
-                continue
+            cmd = input(f"\n{svc.config.BOSS_NAME}: ")
 
-            if "kiểm tra file" in cmd.lower():
-                files = guard.list_vault_files()
-                print(f"{config.AI_NAME}: Các file trong vault: {', '.join(files) if files else 'Trống'}")
+            # Lệnh đặc biệt
+            result = commands.handle_command(cmd, chat_history, svc)
+            if result.handled:
+                if result.message:
+                    print(result.message)
+                chat_history = result.chat_history
+                if result.should_exit:
+                    break
                 continue
 
             # Xử lý qua AI
-            reply = brain.generate_response(cmd, chat_history)
+            reply = svc.brain.generate_response(cmd, chat_history)
             
             # Lưu lịch sử
             chat_history.append({'role': 'user', 'content': cmd})
             chat_history.append({'role': 'assistant', 'content': reply})
-            memory.save_memory(chat_history)
-            
-            print(f"{config.AI_NAME}: {reply}")
+            svc.memory.save_memory(chat_history)
+
+            print(f"{svc.config.AI_NAME}: {reply}")
 
         except KeyboardInterrupt:
             break
