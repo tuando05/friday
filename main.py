@@ -1,5 +1,14 @@
 from core import commands, services
 
+
+def format_assistant_message(name, content):
+    if content is None:
+        return f"{name}:"
+    cleaned = content.strip()
+    if not cleaned:
+        return f"{name}:"
+    return f"{name}:\n{cleaned}"
+
 def main():
     svc = services.build_services()
     print(f"--- {svc.config.AI_NAME} Mark 1 Modular Online ---")
@@ -15,7 +24,7 @@ def main():
             result = commands.handle_command(cmd, chat_history, svc)
             if result.handled:
                 if result.message:
-                    print(result.message)
+                    print(format_assistant_message(svc.config.AI_NAME, result.message))
                 chat_history = result.chat_history
                 if result.should_exit:
                     break
@@ -29,7 +38,7 @@ def main():
             chat_history.append({'role': 'assistant', 'content': reply})
             svc.memory.save_memory(chat_history)
 
-            print(f"{svc.config.AI_NAME}: {reply}")
+            print(format_assistant_message(svc.config.AI_NAME, reply))
 
         except KeyboardInterrupt:
             break
