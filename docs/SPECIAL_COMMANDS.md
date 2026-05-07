@@ -27,6 +27,14 @@ Dieu huong tim thong tin tren mang (chua can setup, se cap nhat sau).
 ### /status
 Hien thi trang thai he thong: Boss, mode, so lich su, so TODO, duong dan data.
 
+### /voice on|off|status|help
+Bat/tat voice listener va xem trang thai.
+
+Vi du:
+- /voice on
+- /voice status
+- /voice off
+
 ### /mode <ten>
 Xem hoac doi che do lam viec.
 

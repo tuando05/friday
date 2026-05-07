@@ -9,6 +9,10 @@ friday/
 ├── .env                    # Configuration (local, not committed)
 ├── .env.example            # Configuration template
 ├── .gitignore              # Git ignore rules
+├── audio/                  # Audio handling module
+│   ├── __init__.py
+│   ├── listener.py         # Voice recognition & wake word
+│   └── speaker.py          # Text-to-speech engine
 ├── config/                 # Configuration module
 │   ├── __init__.py
 │   └── settings.py         # Environment & config loading
@@ -80,6 +84,46 @@ Edit `.env` file to customize:
 - `OLLAMA_HOST` - Ollama server address (default: http://localhost:11434)
 - `MAX_HISTORY` - Number of messages to keep in memory
 
+### Voice Setup (offline)
+
+Voice dung wake word + VAD + ASR offline (Vosk). Can cai them model Vosk va cau hinh env.
+
+1) Cai deps
+```bash
+pip install -r requirements.txt
+```
+
+2) Tai model Vosk
+- Tai model tu: https://alphacephei.com/vosk/models
+- Giai nen vao thu muc bat ky, vi du: `models/vosk-small-vi`.
+
+3) Cau hinh .env
+```bash
+VOICE_ASR_MODEL=./models/vosk-small-vi
+VOICE_WAKE_WORD=hey_jarvis
+VOICE_SAMPLE_RATE=16000
+VOICE_FRAME_MS=20
+VOICE_WAKE_THRESHOLD=0.7
+VOICE_SILENCE_MS=800
+VOICE_MAX_RECORD_MS=8000
+VOICE_VAD_AGGRESSIVENESS=2
+VOICE_DEVICE=
+```
+
+4) Chay va bat voice
+```bash
+python main.py
+```
+
+Trong app:
+- `/voice on` de bat listener
+- Noi "Hey Friday" va doc lenh
+- `/voice off` de tat
+
+Luu y:
+- VOICE_ASR_MODEL la bat buoc; neu thieu se khong bat duoc voice.
+- Neu khong biet device, de trong VOICE_DEVICE de dung default.
+
 ## Code Architecture
 
 ### Core Modules
@@ -121,6 +165,16 @@ Edit `.env` file to customize:
 
 #### services.py
 - Utility functions and helpers
+
+### Audio Module (audio/)
+
+#### listener.py
+- Handles wake word detection and speech-to-text (Vosk)
+- Manages microphone stream and voice activity detection (VAD)
+
+#### speaker.py
+- Handles text-to-speech engine (pyttsx3)
+- Manages output queue for spoken responses
 
 ## Development Tips
 

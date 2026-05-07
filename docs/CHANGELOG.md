@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- New `audio` module for better separation of concerns.
+
+### Changed
+- Extracted voice listener and speaker functionality from `core` into `audio` package.
+- Renamed `core/voice.py` to `audio/listener.py`.
+- Renamed `core/speaker.py` to `audio/speaker.py`.
+
 ### Planned
 - Web interface
 - Multi-user support
