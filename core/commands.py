@@ -46,6 +46,7 @@ def handle_command(raw_cmd, chat_history, services):
                     "/clear: Xoa lich su hoi thoai da luu.",
                     "/check-files: Liet ke file trong vault.",
                     "/search <tu_khoa>: Dieu huong tim thong tin tren mang.",
+                    "/voice on|off|status|help: Dieu khien voice listener.",
                     "/status: Trang thai he thong.",
                     "/mode <ten>: Xem/doi che do. Vi du: /mode think.",
                     "/todo [list|add <noi_dung>]: Quan ly danh sach viec can lam.",
@@ -115,6 +116,7 @@ def handle_command(raw_cmd, chat_history, services):
     if cmd == "/status":
         mode_name = services.memory.load_mode() or "default"
         todo_items = services.memory.load_todo()
+        voice_state = "on" if services.voice.is_active() else "off"
         return CommandResult(
             handled=True,
             should_exit=False,
@@ -126,8 +128,68 @@ def handle_command(raw_cmd, chat_history, services):
                     f"Mode: {mode_name}.",
                     f"Lich su: {len(chat_history)} muc.",
                     f"TODO: {len(todo_items)} muc.",
+                    f"Voice: {voice_state}.",
                     f"Data: {services.config.DATA_DIR}.",
                 ],
+            ),
+        )
+
+    if cmd.startswith("/voice"):
+        parts = raw_cmd.strip().split(maxsplit=1)
+        action = parts[1].strip().lower() if len(parts) > 1 else "status"
+
+        if action == "help":
+            return CommandResult(
+                handled=True,
+                should_exit=False,
+                chat_history=chat_history,
+                message=_format_section(
+                    "Voice",
+                    [
+                        "/voice on: Bat voice listener.",
+                        "/voice off: Tat voice listener.",
+                        "/voice status: Trang thai voice.",
+                        "/voice help: Huong dan nhanh.",
+                    ],
+                ),
+            )
+
+        if action == "on":
+            ok, msg = services.voice.start()
+            status = "Da bat" if ok else "Khong the bat"
+            return CommandResult(
+                handled=True,
+                should_exit=False,
+                chat_history=chat_history,
+                message=_format_section("Voice", [f"{status} voice.", msg]),
+            )
+
+        if action == "off":
+            ok, msg = services.voice.stop()
+            status = "Da tat" if ok else "Khong the tat"
+            return CommandResult(
+                handled=True,
+                should_exit=False,
+                chat_history=chat_history,
+                message=_format_section("Voice", [f"{status} voice.", msg]),
+            )
+
+        if action == "status":
+            state = "on" if services.voice.is_active() else "off"
+            return CommandResult(
+                handled=True,
+                should_exit=False,
+                chat_history=chat_history,
+                message=_format_section("Voice", [f"Trang thai: {state}."]),
+            )
+
+        return CommandResult(
+            handled=True,
+            should_exit=False,
+            chat_history=chat_history,
+            message=_format_section(
+                "Voice",
+                ["Cach dung: /voice on|off|status|help."],
             ),
         )
 

@@ -43,3 +43,4 @@ memory.json
 .env
 !.env.example
 !.env.documentation
+GEMINI.md
