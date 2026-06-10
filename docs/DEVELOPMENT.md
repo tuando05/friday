@@ -1,389 +1,170 @@
-# Development Guide for F.R.I.D.A.Y
+# Hướng dẫn phát triển F.R.I.D.A.Y (Development Guide)
 
-## Project Structure
-
-```
-friday/
-├── main.py                 # Main entry point
-├── requirements.txt        # Python dependencies
-├── .env                    # Configuration (local, not committed)
-├── .env.example            # Configuration template
-├── .gitignore              # Git ignore rules
-├── audio/                  # Audio handling module
-│   ├── __init__.py
-│   ├── listener.py         # Voice recognition & wake word
-│   └── speaker.py          # Text-to-speech engine
-├── config/                 # Configuration module
-│   ├── __init__.py
-│   └── settings.py         # Environment & config loading
-├── core/                   # Core application modules
-│   ├── __init__.py
-│   ├── brain.py            # AI response generation via Ollama
-│   ├── commands.py         # Command handler
-│   ├── guard.py            # File vault management
-│   ├── memory.py           # Conversation memory (JSON persistence)
-│   └── services.py         # Utility services
-├── prompts/                # Prompt templates
-│   └── sysPromt.txt        # System prompt for AI
-├── docs/                   # Documentation
-│   ├── README.md           # Project overview
-│   ├── DEVELOPMENT.md      # This file - setup & architecture
-│   └── CHANGELOG.md        # Version history
-├── skill/                  # Custom skills/abilities (for future use)
-│   └── __init__.py
-├── data/                   # Data storage (created at runtime, git-ignored)
-│   └── memory.json         # Conversation history
-└── venv/                   # Virtual environment (git-ignored)
-```
-
-## Getting Started
-
-### Prerequisites
-- **Python 3.8+** - [Download](https://www.python.org/downloads/)
-- **Ollama** - [Download](https://ollama.ai/)
-- **Git**
-
-### Setup
-
-```bash
-# Clone and enter directory
-git clone <repository-url>
-cd friday
-
-# Create and activate virtual environment
-python3 -m venv venv
-source venv/bin/activate  # Windows: venv\Scripts\Activate.ps1
-
-# Install dependencies
-pip install -r requirements.txt
-
-# Copy and edit environment config
-cp .env.example .env
-# Edit .env to set AI_NAME, BOSS_NAME, MODEL_NAME, etc.
-```
-
-### Running
-
-```bash
-# Terminal 1: Start Ollama
-ollama serve
-
-# Terminal 2: Pull model (first time only)
-ollama pull phi3:mini
-
-# Terminal 3: Run the app
-python main.py
-```
-
-### Configuration
-
-Edit `.env` file to customize:
-- `AI_NAME` - Assistant name
-- `BOSS_NAME` - Your name  
-- `MODEL_NAME` - Ollama model (phi3:mini, mistral, llama2, etc.)
-- `OLLAMA_HOST` - Ollama server address (default: http://localhost:11434)
-- `MAX_HISTORY` - Number of messages to keep in memory
-
-### Voice Setup (offline)
-
-Voice dung wake word + VAD + ASR offline (Vosk). Can cai them model Vosk va cau hinh env.
-
-1) Cai deps
-```bash
-pip install -r requirements.txt
-```
-
-2) Tai model Vosk
-- Tai model tu: https://alphacephei.com/vosk/models
-- Giai nen vao thu muc bat ky, vi du: `models/vosk-small-vi`.
-
-3) Cau hinh .env
-```bash
-VOICE_ASR_MODEL=./models/vosk-small-vi
-VOICE_WAKE_WORD=hey_jarvis
-VOICE_SAMPLE_RATE=16000
-VOICE_FRAME_MS=20
-VOICE_WAKE_THRESHOLD=0.7
-VOICE_SILENCE_MS=800
-VOICE_MAX_RECORD_MS=8000
-VOICE_VAD_AGGRESSIVENESS=2
-VOICE_DEVICE=
-```
-
-4) Chay va bat voice
-```bash
-python main.py
-```
-
-Trong app:
-- `/voice on` de bat listener
-- Noi "Hey Friday" va doc lenh
-- `/voice off` de tat
-
-Luu y:
-- VOICE_ASR_MODEL la bat buoc; neu thieu se khong bat duoc voice.
-- Neu khong biet device, de trong VOICE_DEVICE de dung default.
-
-## Code Architecture
-
-### Core Modules
-
-#### config/settings.py
-- Loads environment variables from `.env`
-- Provides centralized configuration access
-- Ensures DATA_DIR exists
-
-**Key exports:**
-- `MODEL`, `AI_NAME`, `BOSS_NAME`, `DATA_DIR`
-- `MEMORY_FILE`, `MAX_HISTORY`
-
-#### brain.py
-- Handles communication with Ollama
-- Generates AI responses based on user input
-- Maintains system prompt context
-
-**Key function:**
-- `generate_response(user_input, history)` - Returns AI response
-
-#### memory.py
-- Saves/loads conversation history
-- Manages JSON-based persistent memory
-- Limits history size based on `MAX_HISTORY`
-
-**Key functions:**
-- `load_memory()` - Load saved conversations
-- `save_memory(history)` - Save current conversation
-- `clear_memory()` - Clear all history
-
-#### guard.py
-- Manages file vault system
-- Handles secure file operations
-
-#### commands.py
-- Parses user commands
-- Handles special commands (exit, clear memory, etc.)
-
-#### services.py
-- Utility functions and helpers
-
-### Audio Module (audio/)
-
-#### listener.py
-- Handles wake word detection and speech-to-text (Vosk)
-- Manages microphone stream and voice activity detection (VAD)
-
-#### speaker.py
-- Handles text-to-speech engine (pyttsx3)
-- Manages output queue for spoken responses
-
-## Development Tips
-
-### Adding New Features
-1. Add feature logic to appropriate core module
-2. Update prompts/sysPromt.txt if needed
-3. Add commands to core/commands.py if applicable
-4. Update CHANGELOG.md
-
-### Testing
-```bash
-# Run with debug output
-OLLAMA_HOST=http://localhost:11434 python main.py
-```
-
-### Available Ollama Models
-- `phi3:mini` - Fast, lightweight (default)
-- `mistral` - Good balance
-- `llama2` - Powerful but slower
-- `neural-chat` - Conversation-optimized
-- `orca-mini` - Good reasoning
-
-To use a different model:
-```bash
-ollama pull mistral
-# Then update MODEL_NAME=mistral in .env
-```
-
-## Troubleshooting
-
-| Issue | Solution |
-|-------|----------|
-| Ollama not found | Start with: `ollama serve` |
-| Model not found | Run: `ollama pull <model-name>` |
-| Permission error (Linux) | Ensure `.py` file is executable or use `python3 main.py` |
-| Connection refused | Check OLLAMA_HOST in .env and Ollama is running |
-- Manages file operations in DATA_DIR
-- Ensures files stay within sandbox
-- Lists available files
-
-**Key functions:**
-- `is_safe_path(path)` - Check if path is safe
-- `list_DATA_files()` - List files in DATA_DIR
-
-### Main Application Flow
-
-```
-main.py
-├── Load config from .env
-├── Initialize memory
-└── Loop:
-    ├── Read user input
-    ├── Check for special commands (exit, clear memory, etc)
-    ├── Send to brain.generate_response()
-    ├── Save response to memory
-    └── Display response
-```
-
-## Adding Features
-
-### Adding a New Skill
-
-1. Create a file in `skill/` directory:
-```python
-# skill/my_skill.py
-def my_skill_function(param):
-    """Description of what this skill does"""
-    return result
-```
-
-2. Import and use in main.py:
-```python
-from skill.my_skill import my_skill_function
-
-# In the command processing section
-if "my_command" in cmd.lower():
-    result = my_skill_function(cmd)
-    print(result)
-```
-
-### Adding a New Configuration Value
-
-1. Add to `.env.example`:
-```
-NEW_VAR=value
-```
-
-2. Add to `.env` (your local copy)
-
-3. Load in `config/settings.py`:
-```python
-NEW_VAR = os.getenv("NEW_VAR", "default_value")
-```
-
-4. Use throughout the app:
-```python
-from config.settings import NEW_VAR
-```
-
-### Modifying the System Prompt
-
-Edit `prompts/sysPromt.txt` to customize the AI's behavior and personality.
-
-## Testing
-
-Currently, there are no automated tests. To manually test:
-
-1. Run the application
-2. Test various inputs
-3. Verify memory is saved correctly
-4. Test special commands
-
-Future improvements could include:
-- Unit tests for each module
-- Integration tests for bot responses
-- Memory persistence tests
-
-## Debugging
-
-### Enable verbose output (optional modification)
-
-Add debug prints in key functions:
-```python
-# In brain.py
-def generate_response(user_input, history):
-    print(f"DEBUG: Input = {user_input}")
-    print(f"DEBUG: History size = {len(history)}")
-    # ... rest of function
-```
-
-### Check logs and files
-
-```bash
-# View memory file
-cat data/memory.json | python -m json.tool
-
-# Check config values
-python -c "from config import settings as config; print(config.__dict__)"
-```
-
-## Common Issues and Solutions
-
-### Model not responding
-- Check Ollama is running: `ollama serve`
-- Check model is installed: `ollama list`
-- Check OLLAMA_HOST in .env
-
-### Memory not saving
-- Check data/ directory exists and is writable
-- Check DATA_PATH in .env is correct
-- Check file permissions
-
-### Dependencies not found
-- Reinstall: `pip install -r requirements.txt`
-- Check venv is activated
-- Try: `pip install --upgrade pip`
-
-## Code Standards
-
-- Use clear, descriptive variable names
-- Add docstrings to functions
-- Comment complex logic
-- Use type hints where possible
-- Keep functions focused and small
-- Handle exceptions gracefully
-
-## Git Workflow
-
-1. Create a branch for your feature: `git checkout -b feature/my-feature`
-2. Make changes and test thoroughly
-3. Commit with clear messages: `git commit -m "Add feature X"`
-4. Push to repository: `git push origin feature/my-feature`
-5. Create a pull request
-
-### Files to NOT commit
-- `.env` (use `.env.example` template)
-- `venv/` (virtual environment)
-- `data/` (user data and memory)
-- `__pycache__/` (Python cache)
-- `.vscode/` settings (local editor config)
-
-## Performance Optimization
-
-### Tips
-- Use `phi3:mini` for faster responses
-- Reduce `MAX_HISTORY` for faster processing
-- Cache frequently accessed data if needed
-- Profile code if it becomes slow
-
-## Future Development Ideas
-
-- [ ] Web interface (Flask/FastAPI)
-- [ ] Multi-user support
-- [ ] Database instead of JSON
-- [ ] Advanced caching
-- [ ] Custom skill plugins
-- [ ] Voice input/output
-- [ ] Multi-language support
-- [ ] Admin dashboard
-- [ ] API interface
-- [ ] Unit tests
-
-## Questions or Issues?
-
-1. Check documentation in README.md
-2. Check .env.documentation for config issues
-3. Review code comments in relevant modules
-4. Test with different configurations
+Tài liệu này mô tả chi tiết cấu trúc dự án, kiến trúc mã nguồn và các bước phát triển, mở rộng hệ thống trợ lý ảo F.R.I.D.A.Y.
 
 ---
 
-**Happy developing!** 🚀
+## 1. Cấu trúc thư mục dự án
+
+Dự án được cấu trúc theo dạng module hóa cao độ:
+
+```text
+friday/
+├── main.py                 # Điểm khởi động ứng dụng (CLI entry point)
+├── requirements.txt        # Danh sách các thư viện phụ thuộc Python
+├── .env                    # Tệp cấu hình cục bộ (chứa API keys, đường dẫn, không commit)
+├── .env.example            # Bản mẫu tệp cấu hình
+├── .gitignore              # Quy tắc bỏ qua của git
+├── audio/                  # Module xử lý âm thanh (Giọng nói & Tổng hợp tiếng nói)
+│   └── __init__.py         # Lớp VoiceManager và Speaker
+├── config/                 # Module quản lý cấu hình hệ thống
+│   ├── __init__.py         # Expose class Settings
+│   └── settings.py         # Lớp Settings tải env và thiết lập biến cấu hình
+├── core/                   # Các dịch vụ cốt lõi của ứng dụng
+│   ├── __init__.py
+│   ├── brain.py            # Lớp Brain điều phối AI (Agentic Loop & Tool Execution)
+│   ├── commands.py         # Hàm handle_command xử lý lệnh đặc biệt CLI
+│   ├── guard.py            # Lớp SecurityGuard bảo vệ hệ thống tệp tin
+│   ├── memory.py           # Lớp MemoryManager lưu trữ lịch sử chat, todo, mode (JSON)
+│   └── services.py         # Composition Root - lắp ghép các dependency của hệ thống
+├── tools/                  # Hạ tầng tích hợp công cụ (Tools) cho Agent
+│   ├── __init__.py         # Expose ToolManager và decorator register_tool
+│   ├── manager.py          # Lớp ToolManager đăng ký & thực thi công cụ
+│   └── system.py           # Định nghĩa các tool (đọc/ghi file, shell_run, web_search)
+├── tests/                  # Bộ kiểm thử tự động (Unit Tests)
+│   ├── __init__.py
+│   ├── test_brain.py       # Test luồng xử lý AI của Brain (giả lập Ollama)
+│   ├── test_config.py      # Test tải cấu hình Settings
+│   ├── test_guard.py       # Test kiểm tra an toàn thư mục dữ liệu
+│   ├── test_memory.py      # Test đọc ghi bộ nhớ JSON
+│   └── test_tools.py       # Test đăng ký và cơ chế phê duyệt tool
+├── prompts/                # Thư mục lưu trữ prompt hệ thống
+│   └── sysPromt.txt        # Prompt hệ thống định hình tính cách & hành vi AI
+├── skill/                  # Module chứa các kỹ năng mở rộng (dùng cho tương lai)
+│   └── __init__.py
+└── data/                   # Thư mục lưu trữ dữ liệu động (tự tạo khi chạy, git-ignored)
+    ├── memory.json         # Lịch sử hội thoại
+    ├── todo.json           # Danh sách việc cần làm
+    └── mode.json           # Chế độ làm việc hiện tại
+```
+
+---
+
+## 2. Kiến trúc mã nguồn (Dependency Injection)
+
+Dự án áp dụng mô hình thiết kế hướng đối tượng với cơ chế **Dependency Injection (DI)** nhằm giảm thiểu sự phụ thuộc lẫn nhau giữa các thành phần và tối ưu hóa khả năng kiểm thử.
+
+```mermaid
+graph TD
+    main.py -->|Khởi tạo| services.py[core/services.py: Composition Root]
+    services.py -->|Build| Settings[config/settings.py: Settings]
+    services.py -->|Build| Memory[core/memory.py: MemoryManager]
+    services.py -->|Build| Guard[core/guard.py: SecurityGuard]
+    services.py -->|Build| Tools[tools/manager.py: ToolManager]
+    services.py -->|Inject dependencies| Brain[core/brain.py: Brain]
+
+    Brain -->|Sử dụng| Settings
+    Brain -->|Sử dụng| Memory
+    Brain -->|Sử dụng| Tools
+```
+
+### Các lớp chính:
+
+*   **`Settings`** ([config/settings.py](file:///c:/Users/dotua/project/friday/config/settings.py)): Nạp cấu hình từ môi trường. Mỗi instance của `Settings` lưu trữ một tập hợp tham số cấu hình riêng biệt.
+*   **`MemoryManager`** ([core/memory.py](file:///c:/Users/dotua/project/friday/core/memory.py)): Quản lý lưu trữ JSON. Không truy cập cấu hình toàn cục mà nhận đường dẫn tệp trực tiếp qua constructor.
+*   **`SecurityGuard`** ([core/guard.py](file:///c:/Users/dotua/project/friday/core/guard.py)): Bảo vệ ranh giới đọc/ghi tệp. Nhận `data_dir` từ constructor.
+*   **`ToolManager`** ([tools/manager.py](file:///c:/Users/dotua/project/friday/tools/manager.py)): Hạ tầng đăng ký và thực thi công cụ. Lớp này nhận một `approval_callback` nhằm tách biệt ranh giới thực thi công cụ với môi trường tương tác người dùng (như CLI, GUI, Web). Mặc định, nếu không truyền callback, ToolManager sẽ chạy tự động (tự động phê duyệt).
+*   **`Brain`** ([core/brain.py](file:///c:/Users/dotua/project/friday/core/brain.py)): Bộ não AI. Quản lý prompt hệ thống, kết nối tới Ollama API và thực hiện vòng lặp suy nghĩ (Agentic Loop). Lớp này nhận `Settings`, `MemoryManager`, `ToolManager` qua constructor.
+
+---
+
+## 3. Quy trình khởi chạy ứng dụng
+
+### Yêu cầu trước khi cài đặt:
+- **Python 3.12+**
+- **Ollama** (đang chạy cổng mặc định `http://localhost:11434`)
+
+### Cài đặt:
+```bash
+# Tạo môi trường ảo và kích hoạt
+python -m venv venv
+venv\Scripts\Activate.ps1  # Trên Windows PowerShell
+source venv/bin/activate  # Trên Linux/macOS
+
+# Cài đặt thư viện phụ thuộc
+pip install -r requirements.txt
+
+# Tạo tệp cấu hình
+copy .env.example .env  # Windows
+cp .env.example .env    # Linux/macOS
+```
+
+### Khởi chạy:
+```bash
+# Khởi động mô hình (ví dụ: phi3:mini)
+ollama run phi3:mini
+
+# Khởi chạy ứng dụng
+$env:PYTHONIOENCODING="utf-8"  # Tránh lỗi font tiếng Việt trên terminal Windows
+python main.py
+```
+
+---
+
+## 4. Hướng dẫn kiểm thử tự động (Testing)
+
+Nhờ áp dụng Dependency Injection, việc viết các kịch bản kiểm thử (unit test) trở nên rất đơn giản bằng cách cung cấp các đối tượng giả lập (Mock).
+
+### Chạy toàn bộ test suite:
+```bash
+$env:PYTHONIOENCODING="utf-8"
+venv\Scripts\python -m unittest discover -s tests
+```
+
+### Cách thức hoạt động của các file test:
+*   [test_config.py](file:///c:/Users/dotua/project/friday/tests/test_config.py): Tạo một file cấu hình tạm và kiểm tra Settings nạp chính xác thuộc tính.
+*   [test_memory.py](file:///c:/Users/dotua/project/friday/tests/test_memory.py): Tạo thư mục tạm và lưu lịch sử chat để kiểm tra xem MemoryManager ghi đè/cắt tỉa lịch sử hội thoại đúng số dòng `max_history` hay không.
+*   [test_tools.py](file:///c:/Users/dotua/project/friday/tests/test_tools.py): Đăng ký thử một phép tính mẫu và truyền callback phê duyệt (`True` / `False`) để test cả 2 luồng đồng ý và từ chối.
+*   [test_brain.py](file:///c:/Users/dotua/project/friday/tests/test_brain.py): Mock lời gọi `ollama.chat` bằng `unittest.mock.patch`. Giả lập AI trả về lệnh gọi tool ở bước 1 và câu trả lời hoàn thiện ở bước 2 để kiểm tra xem Agentic Loop chạy đủ 2 vòng và lưu trữ dữ liệu đúng đắn.
+
+---
+
+## 5. Hướng dẫn mở rộng và phát triển
+
+### 5.1. Thêm một công cụ (Tool) mới
+Các công cụ mới được khai báo trong module [tools/system.py](file:///c:/Users/dotua/project/friday/tools/system.py) (hoặc bất cứ tệp Python nào thuộc package `tools`):
+
+1. Sử dụng decorator `@register_tool` của `tools` để khai báo tên, mô tả và tham số dạng JSON Schema:
+```python
+from tools import register_tool
+
+@register_tool(
+    name="my_new_tool",
+    description="Mô tả công việc mà tool này thực hiện để LLM đọc hiểu.",
+    parameters={
+        "type": "object",
+        "properties": {
+            "param1": {"type": "string", "description": "Mô tả tham số 1"},
+        },
+        "required": ["param1"]
+    }
+)
+def my_new_tool(param1: str) -> str:
+    # Logic thực thi công cụ
+    return f"Kết quả: {param1}"
+```
+2. Công cụ này sẽ tự động được đăng ký vào `_DEFAULT_REGISTRY` khi khởi động dự án nhờ lệnh import gói `tools`.
+
+### 5.2. Thêm một biến cấu hình mới
+1. Thêm biến vào tệp `.env` và `.env.example`.
+2. Khai báo thuộc tính trong constructor của lớp `Settings` ([config/settings.py](file:///c:/Users/dotua/project/friday/config/settings.py)):
+```python
+self.NEW_VAR = os.getenv("NEW_VAR", "giá trị mặc định")
+```
+3. Truy cập biến cấu hình thông qua đối tượng `config` trong `Services` (Ví dụ: `svc.config.NEW_VAR`).
+
+### 5.3. Tích hợp giao diện mới (ví dụ Web/GUI)
+Để xây dựng giao diện web (như FastAPI/Flask) thay thế CLI:
+1. Viết một API route để khởi tạo services thông qua `services.build_services(approval_callback=web_approval_handler)`.
+2. Định nghĩa `web_approval_handler` để gửi yêu cầu xác nhận websocket/HTTP đến trình duyệt người dùng thay vì dùng `input()` dòng lệnh.
+3. Nhờ DI, toàn bộ phần xử lý của `Brain` và `ToolManager` giữ nguyên không cần thay đổi bất cứ dòng code nào.
