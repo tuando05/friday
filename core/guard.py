@@ -1,10 +1,18 @@
 import os
-from config.settings import DATA_DIR
 
-def is_safe_path(path):
-    full_path = os.path.realpath(os.path.join(DATA_DIR, path))
-    return full_path.startswith(os.path.realpath(DATA_DIR))
+class SecurityGuard:
+    def __init__(self, data_dir: str):
+        self.data_dir = os.path.realpath(data_dir)
 
-def list_DATA_files():
-    files = os.listdir(DATA_DIR)
-    return files if files else []
+    def is_safe_path(self, path: str) -> bool:
+        full_path = os.path.realpath(os.path.join(self.data_dir, path))
+        return full_path.startswith(self.data_dir)
+
+    def list_DATA_files(self) -> list:
+        if not os.path.exists(self.data_dir):
+            return []
+        try:
+            files = os.listdir(self.data_dir)
+            return files if files else []
+        except:
+            return []
